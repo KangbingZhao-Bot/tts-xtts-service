@@ -41,6 +41,12 @@ from fastapi.responses import FileResponse
 import uvicorn, os, uuid
 from TTS.api import TTS
 
+# PyTorch >=2.6 defaults torch.load(weights_only=True) which can break XTTS checkpoints
+# Allowlist XTTS config class for safe weights-only loading
+import torch
+from TTS.tts.configs.xtts_config import XttsConfig
+torch.serialization.add_safe_globals([XttsConfig])
+
 app = FastAPI()
 
 tts = TTS('tts_models/multilingual/multi-dataset/xtts_v2').to('cpu')
