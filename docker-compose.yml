@@ -1,0 +1,36 @@
+services:
+  xtts:
+    image: python:3.10-slim
+    working_dir: /app
+    volumes:
+      - ./voices:/voices
+      - ./output:/output
+    ports:
+      - "8020:8020"
+    command: >
+      bash -lc "
+      pip install --no-cache-dir TTS==0.22.0 fastapi uvicorn soundfile &&
+      python - << 'PY'
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+import uvicorn, os, uuid
+from TTS.api import TTS
+
+app = FastAPI()
+
+tts = TTS('tts_models/multilingual/multi-dataset/xtts_v2').to('cpu')
+
+@app.get('/health')
+def health():
+    return {'ok': True}
+
+@app.post('/tts')
+def synth(text: str, ref: str = '/voices/ref.wav', lang: str = 'zh'):
+    out = f'/output/{uuid.uuid4().hex}.wav'
+    tts.tts_to_file(text=text, speaker_wav=ref, language=lang, file_path=out)
+    return FileResponse(out, media_type='audio/wav', filename=os.path.basename(out))
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=8020)
+PY
+      "

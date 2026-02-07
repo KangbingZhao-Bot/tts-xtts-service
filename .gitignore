@@ -1,0 +1,8 @@
+# generated
+output/
+
+# private voice samples
+voices/
+
+# misc
+.DS_Store
