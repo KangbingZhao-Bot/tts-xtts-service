@@ -23,7 +23,7 @@ docker run -d \
   -v "$PWD/output:/output" \
   python:3.10-slim \
   bash -lc "
-    pip install --no-cache-dir TTS==0.22.0 fastapi uvicorn soundfile &&
+    pip install --no-cache-dir --timeout 180 --retries 10 TTS==0.22.0 fastapi uvicorn soundfile &&
     python - << 'PY'
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
