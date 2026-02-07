@@ -34,7 +34,7 @@ docker run -d \
   python:3.10-slim \
   bash -lc "
     pip install --no-cache-dir --timeout 180 --retries 10 -i \"$PIP_INDEX_URL\" --trusted-host \"$PIP_TRUSTED_HOST\" \
-      TTS==0.22.0 fastapi uvicorn soundfile &&
+      TTS==0.22.0 fastapi uvicorn soundfile "transformers==4.41.2" &&
     python - << 'PY'
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
