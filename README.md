@@ -8,6 +8,8 @@ A tiny **offline TTS** service using **Coqui XTTS v2** (CPU-only) with **zero-sh
 - Output: `wav`
 
 > Note: CPU-only is **not real-time** for long text. Split paragraphs/sentences for best throughput.
+> First start downloads large dependencies (PyTorch ~1GB+) and models; expect ~5-20 minutes depending on network.
+> Recommended: mount a persistent model cache (see below) so restarts do not re-download.
 
 ## Requirements
 
@@ -71,3 +73,28 @@ ffmpeg -y -i voices/ref.wav -af loudnorm voices/ref.norm.wav
 ```
 
 Then use `ref=/voices/ref.norm.wav`.
+
+## Persistent cache (recommended)
+
+By default, the container downloads model files each time a fresh container is created.
+To avoid repeated downloads, mount Hugging Face + Coqui caches to the host.
+
+Example (if you run via `run.sh`, you can extend it with these volumes):
+
+- `~/.cache/huggingface`  (HF models)
+- `~/.local/share/tts`    (Coqui TTS)
+
+Create dirs:
+
+```bash
+mkdir -p ~/.cache/huggingface ~/.local/share/tts
+```
+
+Then add volumes to `docker run`:
+
+```bash
+-v $HOME/.cache/huggingface:/root/.cache/huggingface \
+-v $HOME/.local/share/tts:/root/.local/share/tts \
+```
+
+(Inside the container we run as root; if you later switch to a non-root user, adjust paths accordingly.)
