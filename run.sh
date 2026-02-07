@@ -26,6 +26,8 @@ docker run -d \
   -p "${PORT}:8020" \
   -v "$PWD/voices:/voices" \
   -v "$PWD/output:/output" \
+  -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  -v "$HOME/.local/share/tts:/root/.local/share/tts" \
   -e PIP_INDEX_URL="$PIP_INDEX_URL" \
   -e PIP_TRUSTED_HOST="$PIP_TRUSTED_HOST" \
   python:3.10-slim \
