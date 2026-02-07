@@ -1,19 +1,17 @@
 # tts-xtts-service
 
-A tiny **offline TTS** service using **Coqui XTTS v2** (CPU-only) with **zero-shot voice cloning**.
+A tiny **offline TTS** HTTP service using **Coqui XTTS v2** (CPU-only) with **zero-shot voice cloning**.
 
 - Primary language: **Chinese (zh)**
 - Secondary: **English (en)**
 - Input: text + a reference voice wav (`voices/ref.wav`)
 - Output: `wav`
 
-> Note: CPU-only is **not real-time** for long text. Split paragraphs/sentences for best throughput.
-> First start downloads large dependencies (PyTorch ~1GB+) and models; expect ~5-20 minutes depending on network.
-> Recommended: mount a persistent model cache (see below) so restarts do not re-download.
+> CPU-only is **not real-time** for long text. Split paragraphs/sentences for better throughput.
 
 ## Requirements
 
-- Docker + docker compose
+- Docker
 
 ## Quick start
 
@@ -23,8 +21,7 @@ mkdir -p voices output
 # Put a clean 10–30s reference voice here (single speaker, no music/noise)
 cp /path/to/your/ref.wav ./voices/ref.wav
 
-docker compose up -d
-docker compose logs -f
+./run.sh
 ```
 
 Health check:
@@ -58,7 +55,9 @@ curl -X POST "http://127.0.0.1:8020/tts?text=测试一下&lang=zh&ref=/voices/re
 
 ## Files
 
-- `docker-compose.yml` - the service
+- `Dockerfile` - builds the runtime image (deps installed at build time)
+- `app.py` - FastAPI app
+- `run.sh` - build+run helper
 - `voices/ref.wav` - your reference voice (not committed)
 - `output/` - generated wav files (not committed)
 
@@ -76,10 +75,7 @@ Then use `ref=/voices/ref.norm.wav`.
 
 ## Persistent cache (recommended)
 
-By default, the container downloads model files each time a fresh container is created.
-To avoid repeated downloads, mount Hugging Face + Coqui caches to the host.
-
-Example (if you run via `run.sh`, you can extend it with these volumes):
+This service mounts the host caches so model downloads persist across container recreations:
 
 - `~/.cache/huggingface`  (HF models)
 - `~/.local/share/tts`    (Coqui TTS)
@@ -89,12 +85,3 @@ Create dirs:
 ```bash
 mkdir -p ~/.cache/huggingface ~/.local/share/tts
 ```
-
-Then add volumes to `docker run`:
-
-```bash
--v $HOME/.cache/huggingface:/root/.cache/huggingface \
--v $HOME/.local/share/tts:/root/.local/share/tts \
-```
-
-(Inside the container we run as root; if you later switch to a non-root user, adjust paths accordingly.)
