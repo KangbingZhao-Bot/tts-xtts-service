@@ -23,6 +23,7 @@ fi
 
 docker run -d \
   --name "$NAME" \
+  -e COQUI_TOS_AGREED=1 \
   -p "${PORT}:8020" \
   -v "$PWD/voices:/voices" \
   -v "$PWD/output:/output" \
