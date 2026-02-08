@@ -9,8 +9,10 @@ from TTS.api import TTS
 # Allowlist XTTS config class for safe weights-only loading
 import torch
 from TTS.tts.configs.xtts_config import XttsConfig
+from TTS.tts.models.xtts import XttsAudioConfig, XttsArgs
+from TTS.config.shared_configs import BaseDatasetConfig
 
-torch.serialization.add_safe_globals([XttsConfig])
+torch.serialization.add_safe_globals([XttsConfig, XttsAudioConfig, XttsArgs, BaseDatasetConfig])
 
 app = FastAPI()
 
